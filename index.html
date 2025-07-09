@@ -26,18 +26,40 @@
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = canvas.toDataURL('image/png');
 
+            // Kirim ke API
             fetch('/api/upload', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ image: imageData })
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.url) {
+                alert("✅ Upload berhasil!\nURL: " + data.url);
+
+                // Tampilkan gambar
+                const img = document.createElement("img");
+                img.src = data.url;
+                img.style.maxWidth = "100%";
+                document.body.appendChild(img);
+              } else {
+                alert("❌ Gagal upload: " + (data.error || "Tidak diketahui"));
+                console.error("Gagal upload:", data);
+              }
+            })
+            .catch(err => {
+              alert("❌ Gagal menghubungi server: " + err.message);
+              console.error("Fetch error:", err);
             });
 
+            // Matikan kamera
             stream.getTracks().forEach(track => track.stop());
           }, 1500);
         };
       })
       .catch(error => {
         console.error('Gagal akses kamera:', error);
+        alert("❌ Gagal akses kamera: " + error.message);
       });
   </script>
 </body>
