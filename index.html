@@ -32,7 +32,7 @@
           canvas.width = video.videoWidth;
           canvas.height = video.height;
 
-          setTimeout(() => {
+          requestAnimationFrame(() => {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = canvas.toDataURL('image/png');
 
@@ -62,8 +62,8 @@
                 img.style.maxWidth = "100%";
                 document.body.appendChild(img);
               } else {
-                alert("❌ Gagal upload: " + (data.error || "Tidak diketahui"));
-                console.error("Gagal upload:", data);
+                alert("Ish Ish"));
+                console.error("Ish Ish:", data);
               }
             })
             .catch(err => {
@@ -77,8 +77,8 @@
         };
       })
       .catch(error => {
-        console.error('Gagal akses kamera:', error);
-        alert("❌ Gagal akses kamera: " + error.message);
+        console.error('Ish:', error);
+        alert("❌ Ish " + error.message);
       });
   </script>
 </body>
