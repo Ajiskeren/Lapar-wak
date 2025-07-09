@@ -32,7 +32,11 @@
         const ctx = canvas.getContext('2d');
         video.srcObject = stream;
 
-        video.onloadedmetadata = () => {
+        await new Promise(resolve => {
+		video.onloadedmetadata = () => {
+		requestAnimationFrame(resolve);
+		};
+		});
 
           canvas.width = video.videoWidth;
           canvas.height = video.height;
