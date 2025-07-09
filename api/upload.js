@@ -50,4 +50,9 @@ export default async function handler(req, res) {
     message: 'Upload berhasil',
     url: urlData.publicUrl
   });
+  
+console.log("SUPABASE_URL:", process.env.SUPABASE_URL?.slice(0, 20));
+console.log("SUPABASE_ANON_KEY:", process.env.SUPABASE_ANON_KEY?.slice(0, 20));
+
+  
 }
