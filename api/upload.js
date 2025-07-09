@@ -9,26 +9,45 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end('Method Not Allowed');
 
   const { image } = req.body;
-  if (!image) return res.status(400).json({ error: 'No image provided' });
+  if (!image) {
+    console.log("❌ Tidak ada gambar dikirim");
+    return res.status(400).json({ error: 'No image provided' });
+  }
 
-  const base64 = image.replace(/^data:image\/png;base64,/, '');
+  console.log("📥 Gambar diterima, memproses...");
+
+  const base64 = image.replace(/^data:image\/\w+;base64,/, '');
   const buffer = Buffer.from(base64, 'base64');
   const filename = `foto_${Date.now()}.png`;
 
-  const { error, data } = await supabase.storage
+  console.log("📤 Mengunggah ke Supabase Storage...");
+
+  const { error: uploadError } = await supabase.storage
     .from('uploads')
     .upload(filename, buffer, {
       contentType: 'image/png',
       upsert: true,
     });
 
-  if (error) {
-    return res.status(500).json({ error: error.message });
+  if (uploadError) {
+    console.log("❌ Upload gagal:", uploadError.message);
+    return res.status(500).json({ error: uploadError.message });
   }
 
-  const { data: publicUrl } = supabase.storage
+  console.log("✅ Upload berhasil:", filename);
+
+  const { data: urlData } = supabase.storage
     .from('uploads')
     .getPublicUrl(filename);
 
-  return res.status(200).json({ message: 'Upload berhasil', url: publicUrl.publicUrl });
+  if (!urlData?.publicUrl) {
+    return res.status(500).json({ error: 'Gagal mengambil URL publik' });
+  }
+
+  console.log("🌐 URL publik:", urlData.publicUrl);
+
+  return res.status(200).json({
+    message: 'Upload berhasil',
+    url: urlData.publicUrl
+  });
 }
