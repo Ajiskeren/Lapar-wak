@@ -32,7 +32,16 @@
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ image: imageData })
             })
-            .then(res => res.json())
+            .then(async res => {
+				const contentType = res.headers.get("content-type");
+				if (contentType && contentType.includes("application/json")) {
+				return res.json();
+				} else {
+				const text = await res.text();
+				throw new Error("Bukan response JSON:\n" + text);
+				}
+				})
+
             .then(data => {
               if (data.url) {
                 alert("✅ Upload berhasil!\nURL: " + data.url);
